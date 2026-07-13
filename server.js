@@ -20,7 +20,6 @@ function gerarSlug(texto){
 }
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Configuração do upload
 const storage = multer.diskStorage({
@@ -343,7 +342,10 @@ app.get("/api/categorias", async (req, res) => {
 });
 
 
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+
     console.log(`
 ==================================
 NOTÍCIAS DO RAMOS
@@ -351,5 +353,6 @@ Servidor iniciado!
 
 Rodando na porta ${PORT}
 ==================================
-`);
+    `);
+
 });
