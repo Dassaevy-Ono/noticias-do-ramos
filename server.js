@@ -343,19 +343,15 @@ app.get("/api/categorias", async (req, res) => {
 });
 
 
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 3000;
 
+app.listen(PORT, () => {
     console.log(`
 ==================================
 NOTÍCIAS DO RAMOS
 Servidor iniciado!
 
-Site:
-http://localhost:3000
-
-Painel:
-http://localhost:3000/admin
+Rodando na porta ${PORT}
 ==================================
 `);
-
 });
