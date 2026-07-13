@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Notícias do Ramos</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f5f5f5;
+}
+
+.container{
+    max-width:900px;
+    margin:50px auto;
+    background:white;
+    padding:40px;
+    border-radius:15px;
+    box-shadow:0 5px 20px rgba(0,0,0,.1);
+}
+
+img{
+    width:100%;
+    border-radius:10px;
+    margin:20px 0;
+}
+
+.categoria{
+    background:#ff3b30;
+    color:white;
+    display:inline-block;
+    padding:8px 15px;
+    border-radius:20px;
+    margin-bottom:20px;
+}
+
+h1{
+    margin-bottom:20px;
+}
+
+p{
+    line-height:1.8;
+}
+
+a{
+    text-decoration:none;
+    color:#0077b6;
+
+    .texto{
+    line-height: 1.8;
+    font-size: 18px;
+    color: #333;
+}
+
+.texto p{
+    margin-bottom: 20px;
+}
+
+.texto h1,
+.texto h2,
+.texto h3{
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.texto ul,
+.texto ol{
+    margin-left: 25px;
+    margin-bottom: 20px;
+}
+
+.texto img{
+    max-width: 100%;
+    border-radius: 10px;
+}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="/">← Voltar</a>
+
+<div id="conteudo"></div>
+
+</div>
+
+<script>
+
+async function carregarNoticia(){
+
+    const partes =
+        window.location.pathname.split("/");
+
+    const id = partes[2];
+    const slug = partes[3];
+    const resposta =
+        await fetch("/api/noticias");
+
+    const noticias =
+        await resposta.json();
+
+    const noticia =
+        noticias.find(n => n.id == id);
+
+    if(!noticia){
+
+        document
+        .getElementById("conteudo")
+        .innerHTML =
+        "<h2>Notícia não encontrada</h2>";
+
+        return;
+
+        if (slug && noticia.slug !== slug) {
+    window.location.href =
+        `/noticia/${noticia.id}/${noticia.slug}`;
+    return;
+}
+
+    }
+
+    document
+    .getElementById("conteudo")
+    .innerHTML = `
+
+    <div class="categoria">
+        ${noticia.categoria}
+    </div>
+
+    <h1>
+        ${noticia.titulo}
+    </h1>
+
+    ${
+        noticia.imagem
+        ? `<img src="${noticia.imagem}">`
+        : ""
+    }
+
+    <div class="texto">
+        ${noticia.texto}
+    </div>
+
+    `;
+
+}
+
+carregarNoticia();
+
+</script>
+
+</body>
+</html>

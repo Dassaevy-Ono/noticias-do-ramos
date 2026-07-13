@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Painel Administrativo - Notícias do Ramos</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+    display:flex;
+}
+
+.sidebar{
+    width:250px;
+    min-height:100vh;
+    background:#0d1b2a;
+    color:white;
+    padding:30px;
+}
+
+.sidebar h2{
+    margin-bottom:40px;
+    text-align:center;
+}
+
+.sidebar a{
+    display:block;
+    color:#ddd;
+    text-decoration:none;
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:8px;
+    transition:.3s;
+}
+
+.sidebar a:hover{
+    background:#1b263b;
+}
+
+.main{
+    flex:1;
+    padding:30px;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    margin-bottom:30px;
+    box-shadow:0 5px 15px rgba(0,0,0,.1);
+}
+
+.card h2{
+    margin-bottom:20px;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    font-size:15px;
+}
+
+textarea{
+    resize:none;
+}
+
+.btn-publicar{
+    background:#ff3b30;
+    color:white;
+    border:none;
+    padding:12px 25px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+}
+
+.btn-publicar:hover{
+    opacity:.9;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:15px;
+    text-align:left;
+    border-bottom:1px solid #ddd;
+}
+
+th{
+    background:#f5f5f5;
+}
+
+.editar{
+    background:#0077b6;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    border-radius:6px;
+    cursor:pointer;
+    margin-right:5px;
+}
+
+.excluir{
+    background:#d90429;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+@media(max-width:900px){
+
+    body{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+        min-height:auto;
+    }
+
+}
+/* BOTÃO LOGOUT DESTACADO */
+.sidebar a.logout {
+    margin-top: 50px;
+    background: #d90429;
+    color: white !important;
+    text-align: center;
+    font-weight: bold;
+}
+
+.sidebar a.logout:hover {
+    background: #b00020;
+}
+
+.thumb {
+    width: 80px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.filtros{
+    display:flex;
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.filtros input,
+.filtros select{
+    margin-bottom:0;
+}
+
+@media(max-width:700px){
+
+    .filtros{
+        flex-direction:column;  
+    }
+}
+
+.dashboard{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+
+.dash-card{
+    background:#0d1b2a;
+    color:white;
+    padding:25px;
+    border-radius:15px;
+    text-align:center;
+    box-shadow:0 5px 15px rgba(0,0,0,.1);
+}
+
+.dash-card h3{
+    font-size:32px;
+    margin-bottom:10px;
+}
+
+.grafico-container{
+    position:relative;
+    width:100%;
+    height:400px;
+}
+
+#graficoCategorias{
+    width:100% !important;
+    height:100% !important;
+}
+
+@media(max-width:768px){
+
+    .grafico-container{
+        height:300px;
+    }
+
+}
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <h2>📰 Notícias do Ramos</h2>   
+
+    <a href="#">📊 Dashboard</a>
+    <a href="#">📰 Nova Notícia</a>
+    <a href="#">⚙️ Gerenciar Notícias</a>
+
+    <!-- ESPAÇADOR -->
+    <div class="spacer"></div>
+
+    <a href="/logout" class="logout">🚪 Sair</a>
+
+</div>
+
+<div class="main">
+
+    <div class="card">
+    <h2>📊 Dashboard</h2>
+
+    <div class="dashboard">
+
+        <div class="dash-card">
+            <h3 id="totalNoticias">0</h3>
+            <p>Total de Notícias</p>
+        </div>
+
+        <div class="dash-card">
+            <h3 id="ultimaNoticia">-</h3>
+            <p>Última Notícia</p>
+        </div>
+
+        <div class="dash-card">
+            <h3 id="totalCategorias">0</h3>
+            <p>Categorias</p>
+        </div>
+
+        <div class="dash-card">
+            <h3 id="ultimaCategoria">-</h3>
+            <p>Categoria Recente</p>
+        </div>
+
+    </div>
+
+</div>
+    <div class="card">
+
+        <h2>📈 Notícias por Categoria</h2>
+
+        <div class="grafico-container">
+            <canvas id="graficoCategorias"></canvas>
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Nova Notícia</h2>
+
+        <form id="form" enctype="multipart/form-data">
+
+            <input
+                type="text"
+                name="titulo"
+                placeholder="Título da notícia"
+                required
+            >
+
+            <select name="categoria" id="categoriaSelect">
+                <option value="">Carregando categorias...</option>
+            </select>
+
+            <input
+                type="file"
+                name="imagem"
+            >
+
+            <textarea
+                id="editor"
+                name="texto"
+                placeholder="Conteúdo da notícia"
+            ></textarea>
+
+            <button
+                class="btn-publicar"
+                type="submit"
+            >
+                Salvar Notícia
+            </button>
+
+        </form>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Notícias Publicadas</h2>
+
+        <div class="filtros">
+
+            <input
+                type="text"
+                id="busca"
+                placeholder="🔍 Buscar por título..."
+            >
+
+        <select id="filtroCategoria">
+            <option value="">Todas as categorias</option>
+        </select>
+
+        </div>
+
+<table>
+
+    <thead>
+        <tr>
+            <th>Imagem</th>
+            <th>Título</th>
+            <th>Categoria</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+
+    <tbody id="lista">
+    </tbody>
+
+</table>
+
+<script>
+
+let editandoId = null;
+let grafico = null;
+let editorTexto;
+
+ClassicEditor
+.create(document.querySelector("#editor"))
+.then(editor => {
+    editorTexto = editor;
+})
+.catch(error => {
+    console.error(error);
+});
+
+async function carregarCategorias(){
+
+    const resposta = await fetch("/api/categorias");
+    const categorias = await resposta.json();
+
+    const selectFormulario =
+        document.getElementById("categoriaSelect");
+
+    const selectFiltro =
+        document.getElementById("filtroCategoria");
+
+    selectFormulario.innerHTML = "";
+    selectFiltro.innerHTML =
+        `<option value="">Todas as categorias</option>`;
+
+    categorias.forEach(categoria => {
+
+        selectFormulario.innerHTML += `
+            <option value="${categoria.nome}">
+                ${categoria.nome}
+            </option>
+        `;
+
+        selectFiltro.innerHTML += `
+            <option value="${categoria.nome}">
+                ${categoria.nome}
+            </option>
+        `;
+
+    });
+
+}
+
+// LISTAR NOTÍCIAS
+async function carregarNoticias() {
+
+    const resposta = await fetch("/api/noticias");
+    const noticias = await resposta.json();
+
+    const busca =
+        document.getElementById("busca")
+        ? document.getElementById("busca").value.toLowerCase()
+        : "";
+
+    const categoria =
+        document.getElementById("filtroCategoria")
+        ? document.getElementById("filtroCategoria").value
+        : "";
+
+    const filtradas = noticias.filter(n => {
+
+        const tituloOk =
+            (n.titulo || "")
+            .toLowerCase()
+            .includes(busca);
+
+        const categoriaOk =
+            categoria === ""
+            || n.categoria === categoria;
+
+        return tituloOk && categoriaOk;
+
+    });
+
+    const lista = document.getElementById("lista");
+
+    if (!lista) {
+        console.error("Elemento #lista não encontrado!");
+        return;
+    }
+
+    lista.innerHTML = "";
+
+    filtradas.forEach(n => {
+
+        lista.innerHTML += `
+        <tr>
+
+            <td>
+                ${
+                    n.imagem
+                    ? `<img src="${n.imagem}" class="thumb">`
+                    : "Sem imagem"
+                }
+            </td>
+
+            <td>${n.titulo}</td>
+
+            <td>${n.categoria}</td>
+
+            <td>
+
+                <button
+                    class="editar"
+                    onclick="editar(${n.id})"
+                >
+                    Editar
+                </button>
+
+                <button
+                    class="excluir"
+                    onclick="excluir(${n.id})"
+                >
+                    Excluir
+                </button>
+
+            </td>
+
+        </tr>
+        `;
+
+    });
+
+    atualizarDashboard(noticias);
+    atualizarGrafico(noticias);
+
+}
+// EXCLUIR
+async function excluir(id){
+
+    if(!confirm("Deseja excluir esta notícia?")){
+        return;
+    }
+
+    const resposta = await fetch("/api/noticias/" + id,{
+        method:"DELETE"
+    });
+
+    if(!resposta.ok){
+        alert("Erro ao excluir notícia!");
+        return;
+    }
+
+    carregarNoticias();
+}
+
+
+// EDITAR
+async function editar(id){
+
+    const resposta = await fetch("/api/noticias");
+    const noticias = await resposta.json();
+
+    const noticia = noticias.find(
+        n => n.id == id
+    );
+
+    if(!noticia) return;
+
+    document.querySelector('[name="titulo"]').value =
+        noticia.titulo;
+
+    document.querySelector('[name="categoria"]').value =
+        noticia.categoria;
+
+    editorTexto.setData(noticia.texto || "");
+
+    editandoId = id;
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+function atualizarDashboard(noticias){
+
+    // TOTAL
+    document.getElementById("totalNoticias").innerText =
+        noticias.length;
+
+    if(noticias.length === 0){
+        document.getElementById("ultimaNoticia").innerText = "-";
+        document.getElementById("totalCategorias").innerText = "0";
+        document.getElementById("ultimaCategoria").innerText = "-";
+        return;
+    }
+
+    const ultima = noticias[0];
+
+    document.getElementById("ultimaNoticia").innerText =
+        ultima.titulo;
+
+    const categorias =
+        [...new Set(noticias.map(n => n.categoria))];
+
+    document.getElementById("totalCategorias").innerText =
+        categorias.length;
+
+    document.getElementById("ultimaCategoria").innerText =
+        ultima.categoria;
+}
+
+
+// COLE ESTA FUNÇÃO LOGO ABAIXO
+function atualizarGrafico(noticias){
+
+    const categorias = {};
+
+    noticias.forEach(n => {
+
+        categorias[n.categoria] =
+            (categorias[n.categoria] || 0) + 1;
+
+    });
+
+    const ctx =
+        document
+        .getElementById("graficoCategorias")
+        .getContext("2d");
+
+    if(grafico){
+        grafico.destroy();
+    }
+
+    grafico = new Chart(ctx, {
+
+        type: "doughnut",
+
+        data: {
+
+            labels: Object.keys(categorias),
+
+            datasets: [{
+
+                data: Object.values(categorias),
+
+                backgroundColor: [
+                    "#ff3b30",
+                    "#0077b6",
+                    "#2a9d8f",
+                    "#f4a261",
+                    "#6a4c93"
+                ]
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+                    position: "bottom"
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
+// SALVAR
+document
+.getElementById("form")
+.addEventListener("submit", async (e)=>{
+
+    e.preventDefault();
+
+    const dados = new FormData(e.target);
+
+    // pega o conteúdo do CKEditor e coloca no FormData
+    dados.set("texto", editorTexto.getData());
+
+    const url = editandoId
+        ? "/api/noticias/" + editandoId
+        : "/api/noticias";
+
+    const metodo = editandoId
+        ? "PUT"
+        : "POST";
+
+    const resposta = await fetch(url,{
+        method: metodo,
+        body: dados
+    });
+
+    if(!resposta.ok){
+        alert("Erro ao salvar notícia!");
+        return;
+    }
+
+    alert(
+        editandoId
+        ? "Notícia atualizada!"
+        : "Notícia publicada!"
+    );
+
+    editandoId = null;
+
+    e.target.reset();
+
+    // limpa o editor depois de salvar
+    editorTexto.setData("");
+
+    carregarNoticias();
+
+});
+
+document
+.getElementById("busca")
+.addEventListener(
+    "input",
+    carregarNoticias
+);
+
+document
+.getElementById("filtroCategoria")
+.addEventListener(
+    "change",
+    carregarNoticias
+);
+carregarCategorias();
+carregarNoticias();
+
+</script>
+
+</body>
+</html>
