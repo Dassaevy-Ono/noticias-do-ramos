@@ -21,6 +21,70 @@ function gerarSlug(texto){
 
 const app = express();
 
+async function inicializarBanco() {
+
+    try {
+
+        // TABELA DE NOTÍCIAS
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS noticias (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                titulo VARCHAR(255) NOT NULL,
+                categoria VARCHAR(100) NOT NULL,
+                texto TEXT NOT NULL,
+                imagem VARCHAR(255),
+                slug VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP
+                    DEFAULT CURRENT_TIMESTAMP
+                    ON UPDATE CURRENT_TIMESTAMP
+            )
+        `);
+
+        // TABELA DE CATEGORIAS
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS categorias (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nome VARCHAR(100) NOT NULL UNIQUE,
+                slug VARCHAR(120) NOT NULL UNIQUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // TABELA DE USUÁRIOS
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nome VARCHAR(100) NOT NULL,
+                usuario VARCHAR(50) NOT NULL UNIQUE,
+                senha VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // CATEGORIAS INICIAIS
+        await db.query(`
+            INSERT IGNORE INTO categorias (nome, slug)
+            VALUES
+                ('Política', 'politica'),
+                ('Economia', 'economia'),
+                ('Esportes', 'esportes'),
+                ('Tecnologia', 'tecnologia')
+        `);
+
+        console.log("✅ Banco de dados inicializado!");
+
+    } catch (erro) {
+
+        console.error(
+            "❌ Erro ao inicializar o banco:",
+            erro
+        );
+
+    }
+
+}
+
 // Configuração do upload
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -344,15 +408,23 @@ app.get("/api/categorias", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, "0.0.0.0", () => {
+async function iniciarServidor() {
 
-    console.log(`
+    await inicializarBanco();
+
+    app.listen(PORT, "0.0.0.0", () => {
+
+        console.log(`
 ==================================
 NOTÍCIAS DO RAMOS
 Servidor iniciado!
 
 Rodando na porta ${PORT}
 ==================================
-    `);
+        `);
 
-});
+    });
+
+}
+
+iniciarServidor();
