@@ -73,6 +73,7 @@ async function inicializarBanco() {
         await db.query(`
             INSERT IGNORE INTO categorias (nome, slug)
             VALUES
+                ('Geral', 'geral'),
                 ('Política', 'politica'),
                 ('Economia', 'economia'),
                 ('Esportes', 'esportes'),
