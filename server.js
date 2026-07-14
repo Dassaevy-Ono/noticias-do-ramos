@@ -7,6 +7,7 @@ const multer = require("multer");
 const session = require("express-session");
 const bcrypt = require("bcrypt");
 const db = require("./db");
+const fs = require("fs");
 
 function gerarSlug(texto){
     return texto
@@ -20,6 +21,12 @@ function gerarSlug(texto){
 }
 
 const app = express();
+
+const pastaUploads = path.join(__dirname, "public", "uploads");
+
+if (!fs.existsSync(pastaUploads)) {
+    fs.mkdirSync(pastaUploads, { recursive: true });
+}
 
 async function inicializarBanco() {
 
@@ -88,7 +95,7 @@ async function inicializarBanco() {
 // Configuração do upload
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "public/uploads");
+        cb(null, pastaUploads);
     },
 
     filename: (req, file, cb) => {
