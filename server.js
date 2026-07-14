@@ -405,7 +405,49 @@ app.get("/api/categorias", async (req, res) => {
 
 });
 
+// Rota temporária para criar o administrador no banco online
+app.get("/criar-admin-online", async (req, res) => {
 
+    try {
+
+        const [usuarios] = await db.query(
+            "SELECT id FROM usuarios WHERE usuario = ?",
+            ["admin"]
+        );
+
+        if (usuarios.length > 0) {
+            return res.send("Administrador já existe.");
+        }
+
+        const senhaCriptografada =
+            await bcrypt.hash("admin123", 10);
+
+        await db.query(
+            `
+            INSERT INTO usuarios
+            (nome, usuario, senha)
+            VALUES (?, ?, ?)
+            `,
+            [
+                "Administrador",
+                "admin",
+                senhaCriptografada
+            ]
+        );
+
+        res.send("Administrador criado com sucesso!");
+
+    } catch (erro) {
+
+        console.error("ERRO AO CRIAR ADMIN:", erro);
+
+        res.status(500).send(
+            "Erro ao criar administrador."
+        );
+
+    }
+
+});
 const PORT = process.env.PORT || 3000;
 
 async function iniciarServidor() {
