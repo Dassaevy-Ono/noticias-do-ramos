@@ -1,6 +1,7 @@
 let todasNoticias = [];
 let todasCategorias = [];
 
+
 async function carregarHome() {
 
     const respostaNoticias = await fetch("/api/noticias");
@@ -68,6 +69,11 @@ function cardNoticia(noticia) {
 function montarMenu(categorias) {
 
     const menu = document.getElementById("menuCategorias");
+
+    // Limpa o menu antes de montar novamente
+    menu.innerHTML = `
+        <a href="/">Início</a>
+    `;
 
     categorias.forEach(categoria => {
 
