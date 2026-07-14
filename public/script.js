@@ -134,7 +134,6 @@ function montarUltimas(noticias) {
     container.innerHTML = ultimas
         .map(cardNoticia)
         .join("");
-
 }
 
 function montarCategorias(noticias, categorias) {
@@ -143,29 +142,41 @@ function montarCategorias(noticias, categorias) {
 
     container.innerHTML = "";
 
+    // IDs usados no destaque e nas últimas notícias
+    const idsJaExibidos = noticias
+        .slice(0, 7)
+        .map(noticia => noticia.id);
+
     categorias.forEach(categoria => {
 
-        const noticiasCategoria =
-            noticias
-            .filter(n => n.categoria === categoria.nome)
+        const noticiasCategoria = noticias
+            .filter(noticia =>
+                noticia.categoria === categoria.nome &&
+                !idsJaExibidos.includes(noticia.id)
+            )
             .slice(0, 3);
 
-        if (noticiasCategoria.length === 0) return;
+        if (noticiasCategoria.length === 0) {
+            return;
+        }
 
         container.innerHTML += `
-            <section id="${categoria.slug}" class="secao-categoria">
+            <section
+                id="${categoria.slug}"
+                class="secao-categoria"
+            >
 
                 <h2>${categoria.nome}</h2>
 
                 <div class="grid">
-                    ${noticiasCategoria.map(cardNoticia).join("")}
+                    ${noticiasCategoria
+                        .map(cardNoticia)
+                        .join("")}
                 </div>
 
             </section>
         `;
-
     });
-
 }
 
 function pesquisarNoticias(){
