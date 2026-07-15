@@ -7,7 +7,9 @@ const multer = require("multer");
 const session = require("express-session");
 const bcrypt = require("bcrypt");
 const db = require("./db");
-const fs = require("fs");
+
+
+const cloudinary = require("./cloudinary");
 
 function gerarSlug(texto){
     return texto
@@ -21,12 +23,6 @@ function gerarSlug(texto){
 }
 
 const app = express();
-
-const pastaUploads = path.join(__dirname, "public", "uploads");
-
-if (!fs.existsSync(pastaUploads)) {
-    fs.mkdirSync(pastaUploads, { recursive: true });
-}
 
 async function inicializarBanco() {
 
@@ -92,22 +88,67 @@ async function inicializarBanco() {
     }
 
 }
+const storage = multer.memoryStorage();
 
-// Configuração do upload
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, pastaUploads);
+const upload = multer({
+    storage,
+
+    limits: {
+        fileSize: 5 * 1024 * 1024
     },
 
-    filename: (req, file, cb) => {
-        cb(
-            null,
-            Date.now() + "-" + file.originalname
-        );
+    fileFilter: (req, file, cb) => {
+
+        const tiposPermitidos = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if (!tiposPermitidos.includes(file.mimetype)) {
+            return cb(
+                new Error(
+                    "Formato inválido. Use JPG, PNG ou WEBP."
+                )
+            );
+        }
+
+        cb(null, true);
     }
 });
 
-const upload = multer({ storage });
+function enviarImagemCloudinary(buffer) {
+
+    return new Promise((resolve, reject) => {
+
+        const stream = cloudinary.uploader.upload_stream(
+            {
+                folder: "noticias-do-ramos",
+
+                transformation: [
+                    {
+                        width: 1400,
+                        height: 900,
+                        crop: "limit",
+                        quality: "auto",
+                        fetch_format: "auto"
+                    }
+                ]
+            },
+
+            (erro, resultado) => {
+
+                if (erro) {
+                    return reject(erro);
+                }
+
+                resolve(resultado);
+            }
+        );
+
+        stream.end(buffer);
+    });
+}
 
 // Middlewares
 app.use(express.json());
@@ -243,9 +284,17 @@ app.post(
 
         try {
 
-            const imagem = req.file
-                ? "/uploads/" + req.file.filename
-                : "";
+            let imagem = "";
+
+            if (req.file) {
+
+                const resultadoUpload =
+                    await enviarImagemCloudinary(
+                        req.file.buffer
+                    );
+
+                imagem = resultadoUpload.secure_url;
+            }
 
             const slug = gerarSlug(req.body.titulo);
 
@@ -289,10 +338,19 @@ app.put(
 
         try {
 
-            const id = req.params.id;
-            const slug = gerarSlug(req.body.titulo);
+            let imagemNova = null;
 
             if (req.file) {
+
+                const resultadoUpload =
+                    await enviarImagemCloudinary(
+                        req.file.buffer
+                    );
+
+                imagemNova = resultadoUpload.secure_url;
+            }
+
+            if (imagemNova) {
 
                 await db.query(
                     `
@@ -304,7 +362,8 @@ app.put(
                         req.body.titulo,
                         req.body.categoria,
                         req.body.texto,
-                        "/uploads/" + req.file.filename,
+                        req.file.path,
+                        imagemNova,
                         slug,
                         id
                     ]
