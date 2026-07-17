@@ -338,6 +338,10 @@ app.put(
 
         try {
 
+            const id = req.params.id;
+
+            const slug = gerarSlug(req.body.titulo);
+
             let imagemNova = null;
 
             if (req.file) {
@@ -355,14 +359,18 @@ app.put(
                 await db.query(
                     `
                     UPDATE noticias
-                    SET titulo = ?, categoria = ?, texto = ?, imagem = ?, slug = ?
+                    SET
+                        titulo = ?,
+                        categoria = ?,
+                        texto = ?,
+                        imagem = ?,
+                        slug = ?
                     WHERE id = ?
                     `,
                     [
                         req.body.titulo,
                         req.body.categoria,
                         req.body.texto,
-                        req.file.path,
                         imagemNova,
                         slug,
                         id
@@ -374,7 +382,11 @@ app.put(
                 await db.query(
                     `
                     UPDATE noticias
-                    SET titulo = ?, categoria = ?, texto = ?, slug = ?
+                    SET
+                        titulo = ?,
+                        categoria = ?,
+                        texto = ?,
+                        slug = ?
                     WHERE id = ?
                     `,
                     [
