@@ -91,6 +91,41 @@ async function inicializarBanco() {
     console.log("✅ Banco de dados inicializado!");
 }
 
+async function sincronizarAdministrador() {
+    const usuario = process.env.ADMIN_USER;
+    const senhaHash = process.env.ADMIN_PASSWORD_HASH;
+
+    if (!usuario || !senhaHash) {
+        console.log("ℹ️ Sincronização do administrador não configurada.");
+        return;
+    }
+
+    const [usuarios] = await db.query(
+        "SELECT id FROM usuarios WHERE usuario = ?",
+        [usuario]
+    );
+
+    if (usuarios.length > 0) {
+        await db.query(
+            "UPDATE usuarios SET senha = ? WHERE usuario = ?",
+            [senhaHash, usuario]
+        );
+
+        console.log("✅ Senha do administrador atualizada!");
+        return;
+    }
+
+    await db.query(
+        `
+        INSERT INTO usuarios (nome, usuario, senha)
+        VALUES (?, ?, ?)
+        `,
+        ["Administrador", usuario, senhaHash]
+    );
+
+    console.log("✅ Usuário administrador criado!");
+}
+
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: {
@@ -482,6 +517,7 @@ async function iniciarServidor() {
         console.log("✅ Conectado ao MySQL!");
 
         await inicializarBanco();
+        await sincronizarAdministrador();
 
         app.listen(PORT, "0.0.0.0", () => {
             console.log(`
