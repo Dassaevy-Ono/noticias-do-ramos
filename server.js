@@ -31,7 +31,8 @@ function validarConfiguracao() {
         "SESSION_SECRET",
         "CLOUDINARY_CLOUD_NAME",
         "CLOUDINARY_API_KEY",
-        "CLOUDINARY_API_SECRET"
+        "CLOUDINARY_API_SECRET",
+        "CLOUDINARY_UPLOAD_PRESET"
     ];
 
     const ausentes = obrigatorias.filter((nome) => !process.env[nome]);
@@ -93,12 +94,14 @@ async function inicializarBanco() {
 
 async function sincronizarAdministrador() {
     const usuario = process.env.ADMIN_USER;
-    const senhaHash = process.env.ADMIN_PASSWORD_HASH;
+    const senha = process.env.ADMIN_PASSWORD;
 
-    if (!usuario || !senhaHash) {
+    if (!usuario || !senha) {
         console.log("ℹ️ Sincronização do administrador não configurada.");
         return;
     }
+
+    const senhaHash = await bcrypt.hash(senha, 10);
 
     const [usuarios] = await db.query(
         "SELECT id FROM usuarios WHERE usuario = ?",
@@ -211,6 +214,10 @@ function validarNoticia(req, res, next) {
     next();
 }
 
+if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -224,7 +231,8 @@ app.use(
             sameSite: "lax",
             secure: process.env.NODE_ENV === "production",
             maxAge: 24 * 60 * 60 * 1000
-        }
+        },
+        proxy: process.env.NODE_ENV === "production"
     })
 );
 
