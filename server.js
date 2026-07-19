@@ -313,6 +313,37 @@ app.get("/api/noticias", async (req, res) => {
     }
 });
 
+app.get("/api/noticias/:id", async (req, res) => {
+    try {
+        const [noticias] = await db.query(
+            `
+            SELECT *
+            FROM noticias
+            WHERE id = ?
+            LIMIT 1
+            `,
+            [req.params.id]
+        );
+
+        if (noticias.length === 0) {
+            return res.status(404).json({
+                erro: "Notícia não encontrada"
+            });
+        }
+
+        res.json(noticias[0]);
+    } catch (erro) {
+        console.error(
+            "ERRO AO BUSCAR NOTÍCIA:",
+            erro.message
+        );
+
+        res.status(500).json({
+            erro: "Erro ao buscar notícia"
+        });
+    }
+});
+
 app.post(
     "/api/noticias",
     verificarLogin,

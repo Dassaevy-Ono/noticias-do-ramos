@@ -1,163 +1,286 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>Notícias do Ramos</title>
+    <title>Notícia | Notícias do Ramos</title>
 
-<style>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f5f5f5;
-}
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
 
-.container{
-    max-width:900px;
-    margin:50px auto;
-    background:white;
-    padding:40px;
-    border-radius:15px;
-    box-shadow:0 5px 20px rgba(0,0,0,.1);
-}
+        .container {
+            width: calc(100% - 30px);
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
 
-img{
-    width:100%;
-    border-radius:10px;
-    margin:20px 0;
-}
+        .voltar {
+            display: inline-block;
+            margin-bottom: 25px;
+            color: #0077b6;
+            font-weight: bold;
+            text-decoration: none;
+        }
 
-.categoria{
-    background:#ff3b30;
-    color:white;
-    display:inline-block;
-    padding:8px 15px;
-    border-radius:20px;
-    margin-bottom:20px;
-}
+        .voltar:hover {
+            text-decoration: underline;
+        }
 
-h1{
-    margin-bottom:20px;
-}
+        .categoria {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            color: white;
+            background: #ff3b30;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
 
-p{
-    line-height:1.8;
-}
+        h1 {
+            margin: 0 0 15px;
+            font-size: 40px;
+            line-height: 1.2;
+        }
 
-a{
-    text-decoration:none;
-    color:#0077b6;
+        .data {
+            display: block;
+            margin-bottom: 25px;
+            color: #777;
+            font-size: 14px;
+        }
 
-    .texto{
-    line-height: 1.8;
-    font-size: 18px;
-    color: #333;
-}
+        .imagem-principal {
+            width: 100%;
+            max-height: 550px;
+            margin: 10px 0 30px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
 
-.texto p{
-    margin-bottom: 20px;
-}
+        .texto {
+            color: #333;
+            font-size: 18px;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
 
-.texto h1,
-.texto h2,
-.texto h3{
-    margin-top: 30px;
-    margin-bottom: 15px;
-}
+        .texto p {
+            margin: 0 0 20px;
+        }
 
-.texto ul,
-.texto ol{
-    margin-left: 25px;
-    margin-bottom: 20px;
-}
+        .texto h1,
+        .texto h2,
+        .texto h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
 
-.texto img{
-    max-width: 100%;
-    border-radius: 10px;
-}
-}
+        .texto ul,
+        .texto ol {
+            margin-bottom: 20px;
+            padding-left: 30px;
+        }
 
-</style>
+        .texto img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
 
+        .carregando,
+        .erro {
+            padding: 30px 0;
+            text-align: center;
+        }
+
+        .erro {
+            color: #b00020;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                margin: 20px auto;
+                padding: 24px 18px;
+                border-radius: 10px;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+
+            .texto {
+                font-size: 17px;
+            }
+        }
+    </style>
 </head>
 
 <body>
+    <main class="container">
+        <a href="/" class="voltar">
+            ← Voltar para o início
+        </a>
 
-<div class="container">
+        <div id="conteudo">
+            <p class="carregando">
+                Carregando notícia...
+            </p>
+        </div>
+    </main>
 
-<a href="/">← Voltar</a>
+    <script>
+        function formatarData(data) {
+            if (!data) {
+                return "";
+            }
 
-<div id="conteudo"></div>
+            return new Date(data).toLocaleString(
+                "pt-BR",
+                {
+                    dateStyle: "long",
+                    timeStyle: "short"
+                }
+            );
+        }
 
-</div>
+        async function carregarNoticia() {
+            const conteudo =
+                document.getElementById("conteudo");
 
-<script>
+            const partes =
+                window.location.pathname
+                    .split("/")
+                    .filter(Boolean);
 
-async function carregarNoticia(){
+            const id = partes[1];
+            const slugAtual = partes[2];
 
-    const partes =
-        window.location.pathname.split("/");
+            if (!id) {
+                conteudo.innerHTML = `
+                    <div class="erro">
+                        <h2>Notícia inválida</h2>
+                        <p>O endereço informado não possui uma notícia válida.</p>
+                    </div>
+                `;
 
-    const id = partes[2];
-    const slug = partes[3];
-    const resposta =
-        await fetch("/api/noticias");
+                return;
+            }
 
-    const noticias =
-        await resposta.json();
+            try {
+                const resposta = await fetch(
+                    `/api/noticias/${id}`
+                );
 
-    const noticia =
-        noticias.find(n => n.id == id);
+                if (resposta.status === 404) {
+                    conteudo.innerHTML = `
+                        <div class="erro">
+                            <h2>Notícia não encontrada</h2>
+                            <p>Essa publicação pode ter sido removida.</p>
+                        </div>
+                    `;
 
-    if(!noticia){
+                    return;
+                }
 
-        document
-        .getElementById("conteudo")
-        .innerHTML =
-        "<h2>Notícia não encontrada</h2>";
+                if (!resposta.ok) {
+                    throw new Error(
+                        "Não foi possível carregar a notícia."
+                    );
+                }
 
-        return;
+                const noticia = await resposta.json();
 
-        if (slug && noticia.slug !== slug) {
-    window.location.href =
-        `/noticia/${noticia.id}/${noticia.slug}`;
-    return;
-}
+                if (
+                    noticia.slug &&
+                    slugAtual !== noticia.slug
+                ) {
+                    window.location.replace(
+                        `/noticia/${noticia.id}/${noticia.slug}`
+                    );
 
-    }
+                    return;
+                }
 
-    document
-    .getElementById("conteudo")
-    .innerHTML = `
+                document.title =
+                    `${noticia.titulo} | Notícias do Ramos`;
 
-    <div class="categoria">
-        ${noticia.categoria}
-    </div>
+                conteudo.innerHTML = `
+                    <article>
+                        <div class="categoria">
+                            ${noticia.categoria}
+                        </div>
 
-    <h1>
-        ${noticia.titulo}
-    </h1>
+                        <h1>
+                            ${noticia.titulo}
+                        </h1>
 
-    ${
-        noticia.imagem
-        ? `<img src="${noticia.imagem}">`
-        : ""
-    }
+                        ${
+                            noticia.created_at
+                                ? `
+                                    <time class="data">
+                                        Publicado em
+                                        ${formatarData(
+                                            noticia.created_at
+                                        )}
+                                    </time>
+                                `
+                                : ""
+                        }
 
-    <div class="texto">
-        ${noticia.texto}
-    </div>
+                        ${
+                            noticia.imagem
+                                ? `
+                                    <img
+                                        src="${noticia.imagem}"
+                                        alt="${noticia.titulo}"
+                                        class="imagem-principal"
+                                    >
+                                `
+                                : ""
+                        }
 
-    `;
+                        <div class="texto">
+                            ${noticia.texto}
+                        </div>
+                    </article>
+                `;
+            } catch (erro) {
+                console.error(
+                    "Erro ao carregar notícia:",
+                    erro
+                );
 
-}
+                conteudo.innerHTML = `
+                    <div class="erro">
+                        <h2>Erro ao carregar notícia</h2>
+                        <p>
+                            Tente atualizar a página em alguns instantes.
+                        </p>
+                    </div>
+                `;
+            }
+        }
 
-carregarNoticia();
-
-</script>
-
+        carregarNoticia();
+    </script>
 </body>
 </html>

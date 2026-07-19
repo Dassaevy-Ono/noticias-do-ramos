@@ -27,7 +27,11 @@ function limparTexto(html) {
 }
 
 function linkNoticia(noticia) {
-    return `/noticia/${noticia.id}/${noticia.slug}`;
+    if (noticia.slug) {
+        return `/noticia/${noticia.id}/${noticia.slug}`;
+    }
+
+    return `/noticia/${noticia.id}`;
 }
 
 function cardNoticia(noticia) {
@@ -36,8 +40,16 @@ function cardNoticia(noticia) {
         <div class="card">
 
             ${
-                noticia.imagem
-                ? `<img src="${noticia.imagem}">`
+            noticia.imagem
+                ? `
+                    <a href="${linkNoticia(noticia)}">
+                        <img
+                            src="${noticia.imagem}"
+                            alt="${noticia.titulo}"
+                            loading="lazy"
+                        >
+                    </a>
+                `
                 : ""
             }
 
@@ -102,8 +114,15 @@ function montarDestaque(noticias) {
 
             ${
                 noticia.imagem
-                ? `<img src="${noticia.imagem}">`
-                : ""
+                    ? `
+                        <a href="${linkNoticia(noticia)}">
+                            <img
+                                src="${noticia.imagem}"
+                                alt="${noticia.titulo}"
+                            >
+                        </a>
+                    `
+                    : ""
             }
 
             <div class="conteudo">
