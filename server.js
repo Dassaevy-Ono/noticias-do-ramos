@@ -132,7 +132,8 @@ async function sincronizarAdministrador() {
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: {
-        fileSize: 5 * 1024 * 1024
+        fileSize: 5 * 1024 * 1024,
+        files: 1
     },
     fileFilter: (req, file, cb) => {
         const tiposPermitidos = [
@@ -151,39 +152,76 @@ const upload = multer({
     }
 });
 
+function uploadImagem(req, res, next) {
+    upload.single("imagem")(req, res, (erro) => {
+        if (!erro) {
+            return next();
+        }
+
+        if (
+            erro.code === "ECONNRESET" ||
+            erro.message === "Request aborted"
+        ) {
+            console.warn("⚠️ Upload cancelado pelo navegador.");
+            return;
+        }
+
+        return next(erro);
+    });
+}
+
 function enviarImagemCloudinary(buffer) {
     return new Promise((resolve, reject) => {
-        const preset = process.env.CLOUDINARY_UPLOAD_PRESET;
+        const preset = process.env.CLOUDINARY_UPLOAD_PRESET?.trim();
 
-        const callback = (erro, resultado) => {
+        if (!preset) {
+            return reject(
+                new Error("Upload preset do Cloudinary não configurado.")
+            );
+        }
+
+        let finalizado = false;
+
+        const concluir = (erro, resultado) => {
+            if (finalizado) {
+                return;
+            }
+
+            finalizado = true;
+            clearTimeout(temporizador);
+
             if (erro) {
                 return reject(erro);
+            }
+
+            if (!resultado?.secure_url) {
+                return reject(
+                    new Error("O Cloudinary não retornou a URL da imagem.")
+                );
             }
 
             resolve(resultado);
         };
 
-        let stream;
+        const temporizador = setTimeout(() => {
+            concluir(
+                new Error(
+                    "Tempo limite excedido ao enviar imagem ao Cloudinary."
+                )
+            );
+        }, 30000);
 
-        if (preset) {
-            stream = cloudinary.uploader.unsigned_upload_stream(
+        const stream =
+            cloudinary.uploader.unsigned_upload_stream(
                 preset,
                 {
                     folder: "noticias-do-ramos",
                     resource_type: "image"
                 },
-                callback
+                concluir
             );
-        } else {
-            stream = cloudinary.uploader.upload_stream(
-                {
-                    folder: "noticias-do-ramos",
-                    resource_type: "image"
-                },
-                callback
-            );
-        }
 
+        stream.on("error", concluir);
         stream.end(buffer);
     });
 }
@@ -218,8 +256,8 @@ if (process.env.NODE_ENV === "production") {
     app.set("trust proxy", 1);
 }
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
 app.use(
     session({
@@ -280,7 +318,20 @@ app.post("/login", async (req, res) => {
             usuario: usuarioBanco.usuario
         };
 
-        return res.redirect("/admin");
+        return req.session.save((erro) => {
+            if (erro) {
+                console.error(
+                    "ERRO AO SALVAR SESSÃO:",
+                    erro.message
+                );
+
+                return res
+                    .status(500)
+                    .send("Erro ao iniciar sessão");
+            }
+
+            return res.redirect("/admin");
+        });
     } catch (erro) {
         console.error("ERRO NO LOGIN:", erro.message);
         return res.status(500).send("Erro ao fazer login");
@@ -347,7 +398,7 @@ app.get("/api/noticias/:id", async (req, res) => {
 app.post(
     "/api/noticias",
     verificarLogin,
-    upload.single("imagem"),
+    uploadImagem,
     validarNoticia,
     async (req, res) => {
         try {
@@ -388,6 +439,10 @@ app.post(
                 name: erro.name
             });
 
+            if (req.aborted || res.headersSent) {
+                return;
+            }
+
             const mensagem =
                 erro.http_code === 403
                     ? "O Cloudinary recusou o upload. Verifique o Upload Preset e as permissões da conta."
@@ -403,7 +458,7 @@ app.post(
 app.put(
     "/api/noticias/:id",
     verificarLogin,
-    upload.single("imagem"),
+    uploadImagem,
     validarNoticia,
     async (req, res) => {
         try {
@@ -469,6 +524,10 @@ app.put(
                 name: erro.name
             });
 
+            if (req.aborted || res.headersSent) {
+                return;
+            }
+
             res.status(500).json({
                 erro: "Erro ao atualizar notícia"
             });
@@ -527,6 +586,14 @@ app.get("/api/categorias", async (req, res) => {
 });
 
 app.use((erro, req, res, next) => {
+    if (
+        erro?.code === "ECONNRESET" ||
+        erro?.message === "Request aborted"
+    ) {
+        console.warn("⚠️ Requisição cancelada pelo cliente.");
+        return;
+    }
+
     if (erro instanceof multer.MulterError) {
         const mensagem =
             erro.code === "LIMIT_FILE_SIZE"
@@ -576,5 +643,19 @@ Rodando na porta ${PORT}
         process.exit(1);
     }
 }
+
+process.on("unhandledRejection", (erro) => {
+    console.error(
+        "PROMISE REJEITADA:",
+        erro?.message || erro
+    );
+});
+
+process.on("uncaughtException", (erro) => {
+    console.error(
+        "ERRO NÃO CAPTURADO:",
+        erro.message
+    );
+});
 
 iniciarServidor();
