@@ -1,58 +1,136 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Notícias do Ramos</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Notícias de Boa Vista do Ramos e região, com informação local, credibilidade e atualização diária.">
+    <meta name="theme-color" content="#c4170c">
+    <title>Notícias do Ramos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-<header>
-    <div class="logo">📰 Notícias do Ramos</div>
-
-    <nav id="menuCategorias">
-        <a href="/">Início</a>
-    </nav>
-</header>
-
-<section class="hero">
-    <div class="overlay">
-        <h1>Notícias de Boa Vista do Ramos e Região</h1>
-        <p>Informação com credibilidade e atualização diária.</p>
+    <div class="topbar">
+        <div class="site-width topbar-inner">
+            <span>Boa Vista do Ramos • Amazonas</span>
+            <span id="dataAtual"></span>
+        </div>
     </div>
-</section>
 
-<main class="container">
+    <header class="site-header">
+        <div class="site-width brand-row">
+            <button id="botaoMenu" class="menu-button" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
 
-    <section class="busca-publica">
+            <a href="/" class="brand" aria-label="Página inicial do Notícias do Ramos">
+                <span class="brand-mark">N</span>
+                <span class="brand-copy">
+                    <strong>Notícias do Ramos</strong>
+                    <small>Informação local com credibilidade</small>
+                </span>
+            </a>
 
-    <input
-        type="text"
-        id="buscaPublica"
-        placeholder="🔍 Buscar notícias..."
-    >
+            <form class="search-box" role="search" onsubmit="return false;">
+                <label class="sr-only" for="buscaPublica">Buscar notícias</label>
+                <input id="buscaPublica" type="search" placeholder="Buscar notícias" autocomplete="off">
+                <button type="button" aria-label="Buscar">⌕</button>
+            </form>
+        </div>
 
-</section>
+        <div class="nav-strip">
+            <div class="site-width">
+                <nav id="menuCategorias" class="category-nav" aria-label="Categorias de notícias">
+                    <a href="/" class="active">Início</a>
+                </nav>
+            </div>
+        </div>
+    </header>
 
-    <section id="destaque"></section>
+    <div class="breaking-strip">
+        <div class="site-width breaking-inner">
+            <strong>AGORA</strong>
+            <div id="mancheteAgora" class="breaking-text">Acompanhe as principais notícias de Boa Vista do Ramos e região.</div>
+        </div>
+    </div>
 
-    <section>
-        <h2>Últimas Notícias</h2>
-        <div id="ultimasNoticias" class="grid"></div>
-    </section>
+    <main>
+        <section class="site-width intro">
+            <div>
+                <span class="eyebrow">Portal local</span>
+                <h1>Notícias que fazem parte da sua cidade</h1>
+                <p>Informação rápida, clara e responsável sobre Boa Vista do Ramos e toda a região.</p>
+            </div>
+        </section>
 
-    <section id="categoriasHome"></section>
+        <section id="destaque" class="site-width hero-news" aria-live="polite"></section>
 
-</main>
+        <aside class="site-width ad-slot" aria-label="Espaço publicitário">
+            <span>Publicidade</span>
+            <strong>Seu anúncio pode aparecer aqui</strong>
+        </aside>
 
-<footer>
-    <p>© 2026 Notícias do Ramos - Todos os direitos reservados</p>
-</footer>
+        <section class="site-width content-layout">
+            <div class="main-column">
+                <div class="section-title">
+                    <div>
+                        <span>Atualização constante</span>
+                        <h2>Últimas Notícias</h2>
+                    </div>
+                    <div class="title-line"></div>
+                </div>
 
-<script src="script.js"></script>
+                <div id="ultimasNoticias" class="latest-list" aria-live="polite"></div>
+            </div>
 
+            <aside class="ranking-column">
+                <div class="ranking-card">
+                    <div class="ranking-header">
+                        <span>Em destaque</span>
+                        <h2>Mais lidas</h2>
+                    </div>
+                    <ol id="maisLidas" class="ranking-list"></ol>
+                </div>
+            </aside>
+        </section>
+
+        <section id="categoriasHome" class="site-width categories-home"></section>
+
+        <section id="estadoVazio" class="site-width empty-state" hidden>
+            <strong>Nenhuma notícia encontrada</strong>
+            <p>Tente pesquisar usando outro título, assunto ou categoria.</p>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="site-width footer-grid">
+            <div>
+                <a href="/" class="brand footer-brand">
+                    <span class="brand-mark">N</span>
+                    <span class="brand-copy">
+                        <strong>Notícias do Ramos</strong>
+                        <small>Boa Vista do Ramos • Amazonas</small>
+                    </span>
+                </a>
+                <p>Notícias locais, prestação de serviço e informação para a população.</p>
+            </div>
+            <div>
+                <h3>Navegação</h3>
+                <a href="/">Página inicial</a>
+                <a href="#ultimasNoticias">Últimas notícias</a>
+                <a href="#categoriasHome">Categorias</a>
+            </div>
+            <div>
+                <h3>Contato</h3>
+                <p>Envie sugestões de pauta, informações e comunicados pelos canais oficiais do portal.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="site-width">© <span id="anoAtual"></span> Notícias do Ramos. Todos os direitos reservados.</div>
+        </div>
+    </footer>
+
+    <button id="voltarTopo" class="back-to-top" type="button" aria-label="Voltar ao topo">↑</button>
+    <script src="script.js"></script>
 </body>
 </html>
