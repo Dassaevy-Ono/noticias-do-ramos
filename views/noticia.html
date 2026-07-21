@@ -8,158 +8,495 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="description"
+        content="Notícia publicada no portal Notícias do Ramos."
+    >
+
+    <meta name="theme-color" content="#c4170c">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Notícias do Ramos">
+    <meta property="og:title" content="Notícia | Notícias do Ramos">
+    <meta property="og:description" content="Informação local com credibilidade.">
+    <meta property="og:image" content="">
+    <meta property="og:url" content="">
+
     <title>Notícia | Notícias do Ramos</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            color: #222;
-        }
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:wght@600;700;800&display=swap"
+        rel="stylesheet"
+    >
 
-        .container {
-            width: calc(100% - 30px);
-            max-width: 900px;
-            margin: 50px auto;
-            padding: 40px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .voltar {
-            display: inline-block;
-            margin-bottom: 25px;
-            color: #0077b6;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .voltar:hover {
-            text-decoration: underline;
-        }
-
-        .categoria {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 8px 15px;
-            color: white;
-            background: #ff3b30;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        h1 {
-            margin: 0 0 15px;
-            font-size: 40px;
-            line-height: 1.2;
-        }
-
-        .data {
-            display: block;
-            margin-bottom: 25px;
-            color: #777;
-            font-size: 14px;
-        }
-
-        .imagem-principal {
-            width: 100%;
-            max-height: 550px;
-            margin: 10px 0 30px;
-            object-fit: cover;
-            border-radius: 10px;
-        }
-
-        .texto {
-            color: #333;
-            font-size: 18px;
-            line-height: 1.8;
-            overflow-wrap: anywhere;
-        }
-
-        .texto p {
-            margin: 0 0 20px;
-        }
-
-        .texto h1,
-        .texto h2,
-        .texto h3 {
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-
-        .texto ul,
-        .texto ol {
-            margin-bottom: 20px;
-            padding-left: 30px;
-        }
-
-        .texto img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-        }
-
-        .carregando,
-        .erro {
-            padding: 30px 0;
-            text-align: center;
-        }
-
-        .erro {
-            color: #b00020;
-        }
-
-        @media (max-width: 700px) {
-            .container {
-                margin: 20px auto;
-                padding: 24px 18px;
-                border-radius: 10px;
-            }
-
-            h1 {
-                font-size: 30px;
-            }
-
-            .texto {
-                font-size: 17px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-    <main class="container">
-        <a href="/" class="voltar">
-            ← Voltar para o início
-        </a>
+    <div
+        id="progressoLeitura"
+        class="reading-progress"
+        aria-hidden="true"
+    ></div>
 
-        <div id="conteudo">
-            <p class="carregando">
-                Carregando notícia...
-            </p>
+    <div class="topbar">
+        <div class="site-width topbar-inner">
+            <span>Boa Vista do Ramos • Amazonas</span>
+            <span id="dataAtual"></span>
+        </div>
+    </div>
+
+    <header class="site-header">
+        <div class="site-width brand-row">
+            <button
+                id="menuButton"
+                class="menu-button"
+                type="button"
+                aria-label="Abrir menu"
+                aria-expanded="false"
+            >
+                ☰
+            </button>
+
+            <a
+                href="/"
+                class="brand"
+                aria-label="Página inicial do Notícias do Ramos"
+            >
+                <span class="brand-mark">N</span>
+
+                <span class="brand-copy">
+                    <strong>Notícias do Ramos</strong>
+                    <small>Informação local com credibilidade</small>
+                </span>
+            </a>
+
+            <a
+                href="/"
+                class="article-home-button"
+            >
+                ← Início
+            </a>
+        </div>
+
+        <div class="nav-strip">
+            <nav
+                id="menuCategorias"
+                class="site-width category-nav"
+                aria-label="Categorias"
+            >
+                <a href="/" class="active">Início</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="article-page">
+        <div class="site-width">
+            <nav
+                class="article-breadcrumb"
+                aria-label="Navegação estrutural"
+            >
+                <a href="/">Início</a>
+                <span>›</span>
+                <span id="breadcrumbCategoria">Notícia</span>
+                <span>›</span>
+                <span id="breadcrumbTitulo">Carregando...</span>
+            </nav>
+
+            <div id="conteudo">
+                <div class="loading-box">
+                    Carregando notícia...
+                </div>
+            </div>
         </div>
     </main>
 
+    <footer class="footer">
+        <div class="site-width footer-grid">
+            <div>
+                <a href="/" class="brand footer-brand">
+                    <span class="brand-mark">N</span>
+
+                    <span class="brand-copy">
+                        <strong>Notícias do Ramos</strong>
+                        <small>Boa Vista do Ramos • Amazonas</small>
+                    </span>
+                </a>
+
+                <p>
+                    Notícias locais, prestação de serviço e informação
+                    para a população.
+                </p>
+            </div>
+
+            <div>
+                <h3>Navegação</h3>
+                <a href="/">Página inicial</a>
+                <a href="/">Últimas notícias</a>
+            </div>
+
+            <div>
+                <h3>Contato</h3>
+
+                <p>
+                    Envie sugestões de pauta, informações e comunicados
+                    pelos canais oficiais do portal.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="site-width">
+                © <span id="anoAtual"></span>
+                Notícias do Ramos. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <button
+        id="voltarTopo"
+        class="back-to-top"
+        type="button"
+        aria-label="Voltar ao topo"
+    >
+        ↑
+    </button>
+
     <script>
+        function escaparHtml(valor = "") {
+            return String(valor)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function removerHtml(html = "") {
+            const elemento = document.createElement("div");
+
+            elemento.innerHTML = String(html);
+
+            return (
+                elemento.textContent ||
+                elemento.innerText ||
+                ""
+            )
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+        function criarResumo(texto = "", limite = 190) {
+            const limpo = removerHtml(texto);
+
+            if (limpo.length <= limite) {
+                return limpo;
+            }
+
+            return `${limpo.slice(0, limite).trim()}…`;
+        }
+
+        function obterData(noticia) {
+            return (
+                noticia.createdAt ||
+                noticia.created_at ||
+                noticia.data ||
+                ""
+            );
+        }
+
         function formatarData(data) {
             if (!data) {
                 return "";
             }
 
-            return new Date(data).toLocaleString(
+            const valor = new Date(data);
+
+            if (Number.isNaN(valor.getTime())) {
+                return "";
+            }
+
+            return new Intl.DateTimeFormat(
                 "pt-BR",
                 {
                     dateStyle: "long",
                     timeStyle: "short"
                 }
+            ).format(valor);
+        }
+
+        function calcularTempoLeitura(texto = "") {
+            const totalPalavras = removerHtml(texto)
+                .split(/\s+/)
+                .filter(Boolean)
+                .length;
+
+            return Math.max(
+                1,
+                Math.ceil(totalPalavras / 200)
             );
+        }
+
+        function criarLinkNoticia(noticia) {
+            const id = encodeURIComponent(noticia.id);
+
+            if (noticia.slug) {
+                return `/noticia/${id}/${encodeURIComponent(
+                    noticia.slug
+                )}`;
+            }
+
+            return `/noticia/${id}`;
+        }
+
+        function atualizarSeo(noticia) {
+            const titulo =
+                noticia.titulo || "Notícia";
+
+            const resumo =
+                criarResumo(noticia.texto || "", 160);
+
+            document.title =
+                `${titulo} | Notícias do Ramos`;
+
+            document
+                .querySelector('meta[name="description"]')
+                .setAttribute(
+                    "content",
+                    resumo ||
+                    "Notícia publicada no portal Notícias do Ramos."
+                );
+
+            document
+                .querySelector('meta[property="og:title"]')
+                .setAttribute("content", titulo);
+
+            document
+                .querySelector('meta[property="og:description"]')
+                .setAttribute(
+                    "content",
+                    resumo ||
+                    "Informação local com credibilidade."
+                );
+
+            document
+                .querySelector('meta[property="og:url"]')
+                .setAttribute(
+                    "content",
+                    window.location.href
+                );
+
+            if (noticia.imagem) {
+                document
+                    .querySelector('meta[property="og:image"]')
+                    .setAttribute(
+                        "content",
+                        noticia.imagem
+                    );
+            }
+        }
+
+        function compartilharWhatsApp() {
+            const texto = encodeURIComponent(
+                `${document.title} ${window.location.href}`
+            );
+
+            window.open(
+                `https://wa.me/?text=${texto}`,
+                "_blank",
+                "noopener,noreferrer"
+            );
+        }
+
+        function compartilharFacebook() {
+            const url = encodeURIComponent(
+                window.location.href
+            );
+
+            window.open(
+                `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+                "_blank",
+                "noopener,noreferrer"
+            );
+        }
+
+        function compartilharX() {
+            const url = encodeURIComponent(
+                window.location.href
+            );
+
+            const texto = encodeURIComponent(
+                document.title
+            );
+
+            window.open(
+                `https://twitter.com/intent/tweet?url=${url}&text=${texto}`,
+                "_blank",
+                "noopener,noreferrer"
+            );
+        }
+
+        async function copiarLink(botao) {
+            try {
+                await navigator.clipboard.writeText(
+                    window.location.href
+                );
+
+                const textoOriginal =
+                    botao.textContent;
+
+                botao.textContent =
+                    "Link copiado!";
+
+                setTimeout(() => {
+                    botao.textContent =
+                        textoOriginal;
+                }, 1800);
+            } catch {
+                window.prompt(
+                    "Copie o endereço da notícia:",
+                    window.location.href
+                );
+            }
+        }
+
+        async function carregarCategorias() {
+            const menu =
+                document.getElementById("menuCategorias");
+
+            try {
+                const resposta =
+                    await fetch("/api/categorias");
+
+                if (!resposta.ok) {
+                    return;
+                }
+
+                const categorias =
+                    await resposta.json();
+
+                const lista =
+                    Array.isArray(categorias)
+                        ? categorias
+                        : [];
+
+                lista.forEach((categoria) => {
+                    const nome =
+                        categoria.nome ||
+                        categoria.categoria ||
+                        String(categoria);
+
+                    const link =
+                        document.createElement("a");
+
+                    link.href = `/?categoria=${encodeURIComponent(
+                        nome
+                    )}`;
+
+                    link.textContent = nome;
+
+                    menu.appendChild(link);
+                });
+            } catch (erro) {
+                console.error(
+                    "Erro ao carregar categorias:",
+                    erro
+                );
+            }
+        }
+
+        async function carregarRelacionadas(
+            noticiaAtual
+        ) {
+            const lista =
+                document.getElementById(
+                    "noticiasRelacionadas"
+                );
+
+            if (!lista) {
+                return;
+            }
+
+            try {
+                const resposta =
+                    await fetch("/api/noticias");
+
+                if (!resposta.ok) {
+                    throw new Error(
+                        "Falha ao carregar relacionadas."
+                    );
+                }
+
+                const noticias =
+                    await resposta.json();
+
+                const relacionadas = (
+                    Array.isArray(noticias)
+                        ? noticias
+                        : []
+                )
+                    .filter((noticia) => {
+                        return (
+                            String(noticia.id) !==
+                                String(noticiaAtual.id) &&
+                            noticia.categoria ===
+                                noticiaAtual.categoria
+                        );
+                    })
+                    .slice(0, 5);
+
+                if (!relacionadas.length) {
+                    lista.innerHTML = `
+                        <li>
+                            Ainda não há outras notícias
+                            nesta categoria.
+                        </li>
+                    `;
+
+                    return;
+                }
+
+                lista.innerHTML =
+                    relacionadas
+                        .map((noticia) => {
+                            return `
+                                <li>
+                                    <a href="${criarLinkNoticia(
+                                        noticia
+                                    )}">
+                                        ${escaparHtml(
+                                            noticia.titulo ||
+                                            "Notícia sem título"
+                                        )}
+                                    </a>
+
+                                    <small>
+                                        ${formatarData(
+                                            obterData(
+                                                noticia
+                                            )
+                                        )}
+                                    </small>
+                                </li>
+                            `;
+                        })
+                        .join("");
+            } catch (erro) {
+                console.error(
+                    "Erro nas relacionadas:",
+                    erro
+                );
+
+                lista.innerHTML = `
+                    <li>
+                        Não foi possível carregar
+                        as notícias relacionadas.
+                    </li>
+                `;
+            }
         }
 
         async function carregarNoticia() {
@@ -176,9 +513,17 @@
 
             if (!id) {
                 conteudo.innerHTML = `
-                    <div class="erro">
+                    <div class="article-error">
                         <h2>Notícia inválida</h2>
-                        <p>O endereço informado não possui uma notícia válida.</p>
+
+                        <p>
+                            O endereço informado não possui
+                            uma notícia válida.
+                        </p>
+
+                        <a href="/" class="article-home-button">
+                            Voltar para o início
+                        </a>
                     </div>
                 `;
 
@@ -187,14 +532,24 @@
 
             try {
                 const resposta = await fetch(
-                    `/api/noticias/${id}`
+                    `/api/noticias/${encodeURIComponent(id)}`
                 );
 
                 if (resposta.status === 404) {
                     conteudo.innerHTML = `
-                        <div class="erro">
-                            <h2>Notícia não encontrada</h2>
-                            <p>Essa publicação pode ter sido removida.</p>
+                        <div class="article-error">
+                            <h2>
+                                Notícia não encontrada
+                            </h2>
+
+                            <p>
+                                Essa publicação pode
+                                ter sido removida.
+                            </p>
+
+                            <a href="/" class="article-home-button">
+                                Voltar para o início
+                            </a>
                         </div>
                     `;
 
@@ -207,62 +562,216 @@
                     );
                 }
 
-                const noticia = await resposta.json();
+                const noticia =
+                    await resposta.json();
 
                 if (
                     noticia.slug &&
                     slugAtual !== noticia.slug
                 ) {
                     window.location.replace(
-                        `/noticia/${noticia.id}/${noticia.slug}`
+                        criarLinkNoticia(noticia)
                     );
 
                     return;
                 }
 
-                document.title =
-                    `${noticia.titulo} | Notícias do Ramos`;
+                atualizarSeo(noticia);
+
+                document.getElementById(
+                    "breadcrumbCategoria"
+                ).textContent =
+                    noticia.categoria || "Geral";
+
+                document.getElementById(
+                    "breadcrumbTitulo"
+                ).textContent =
+                    noticia.titulo || "Notícia";
+
+                const titulo =
+                    escaparHtml(
+                        noticia.titulo ||
+                        "Notícia sem título"
+                    );
+
+                const categoria =
+                    escaparHtml(
+                        noticia.categoria ||
+                        "Geral"
+                    );
+
+                const resumo =
+                    escaparHtml(
+                        criarResumo(
+                            noticia.texto || ""
+                        )
+                    );
+
+                const data =
+                    formatarData(
+                        obterData(noticia)
+                    );
+
+                const tempoLeitura =
+                    calcularTempoLeitura(
+                        noticia.texto || ""
+                    );
 
                 conteudo.innerHTML = `
-                    <article>
-                        <div class="categoria">
-                            ${noticia.categoria}
-                        </div>
+                    <div class="article-layout">
+                        <article class="article-main">
+                            <span class="article-category">
+                                ${categoria}
+                            </span>
 
-                        <h1>
-                            ${noticia.titulo}
-                        </h1>
+                            <h1 class="article-title">
+                                ${titulo}
+                            </h1>
 
-                        ${
-                            noticia.created_at
-                                ? `
-                                    <time class="data">
-                                        Publicado em
-                                        ${formatarData(
-                                            noticia.created_at
-                                        )}
-                                    </time>
-                                `
-                                : ""
-                        }
+                            ${
+                                resumo
+                                    ? `
+                                        <p class="article-summary">
+                                            ${resumo}
+                                        </p>
+                                    `
+                                    : ""
+                            }
 
-                        ${
-                            noticia.imagem
-                                ? `
-                                    <img
-                                        src="${noticia.imagem}"
-                                        alt="${noticia.titulo}"
-                                        class="imagem-principal"
+                            <div class="article-meta">
+                                <span>
+                                    Por
+                                    <strong>
+                                        Redação Notícias do Ramos
+                                    </strong>
+                                </span>
+
+                                ${
+                                    data
+                                        ? `
+                                            <span>
+                                                Publicado em
+                                                ${data}
+                                            </span>
+                                        `
+                                        : ""
+                                }
+
+                                <span>
+                                    ${tempoLeitura}
+                                    min de leitura
+                                </span>
+                            </div>
+
+                            <div class="article-share">
+                                <button
+                                    type="button"
+                                    onclick="compartilharWhatsApp()"
+                                >
+                                    WhatsApp
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onclick="compartilharFacebook()"
+                                >
+                                    Facebook
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onclick="compartilharX()"
+                                >
+                                    X
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onclick="copiarLink(this)"
+                                >
+                                    Copiar link
+                                </button>
+                            </div>
+
+                            ${
+                                noticia.imagem
+                                    ? `
+                                        <img
+                                            src="${escaparHtml(
+                                                noticia.imagem
+                                            )}"
+                                            alt="${titulo}"
+                                            class="article-image"
+                                        >
+                                    `
+                                    : ""
+                            }
+
+                            <div class="article-content">
+                                ${
+                                    noticia.texto ||
+                                    "<p>Esta notícia não possui conteúdo.</p>"
+                                }
+                            </div>
+
+                            <div class="article-footer-share">
+                                <h3>
+                                    Compartilhe esta notícia
+                                </h3>
+
+                                <div class="article-share">
+                                    <button
+                                        type="button"
+                                        onclick="compartilharWhatsApp()"
                                     >
-                                `
-                                : ""
-                        }
+                                        WhatsApp
+                                    </button>
 
-                        <div class="texto">
-                            ${noticia.texto}
-                        </div>
-                    </article>
+                                    <button
+                                        type="button"
+                                        onclick="compartilharFacebook()"
+                                    >
+                                        Facebook
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onclick="compartilharX()"
+                                    >
+                                        X
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onclick="copiarLink(this)"
+                                    >
+                                        Copiar link
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <aside class="article-sidebar">
+                            <div class="article-related-card">
+                                <div class="article-related-header">
+                                    <span>Continue lendo</span>
+                                    <h2>Mais notícias</h2>
+                                </div>
+
+                                <ul
+                                    id="noticiasRelacionadas"
+                                    class="article-related-list"
+                                >
+                                    <li>
+                                        Carregando notícias relacionadas...
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </div>
                 `;
+
+                carregarRelacionadas(noticia);
             } catch (erro) {
                 console.error(
                     "Erro ao carregar notícia:",
@@ -270,16 +779,150 @@
                 );
 
                 conteudo.innerHTML = `
-                    <div class="erro">
-                        <h2>Erro ao carregar notícia</h2>
+                    <div class="article-error">
+                        <h2>
+                            Erro ao carregar notícia
+                        </h2>
+
                         <p>
-                            Tente atualizar a página em alguns instantes.
+                            Tente atualizar a página
+                            em alguns instantes.
                         </p>
+
+                        <a href="/" class="article-home-button">
+                            Voltar para o início
+                        </a>
                     </div>
                 `;
             }
         }
 
+        function configurarInterface() {
+            const agora = new Date();
+
+            document.getElementById(
+                "anoAtual"
+            ).textContent =
+                agora.getFullYear();
+
+            document.getElementById(
+                "dataAtual"
+            ).textContent =
+                new Intl.DateTimeFormat(
+                    "pt-BR",
+                    {
+                        weekday: "long",
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric"
+                    }
+                ).format(agora);
+
+            const menu =
+                document.getElementById(
+                    "menuCategorias"
+                );
+
+            const menuButton =
+                document.getElementById(
+                    "menuButton"
+                );
+
+            const voltarTopo =
+                document.getElementById(
+                    "voltarTopo"
+                );
+
+            const progresso =
+                document.getElementById(
+                    "progressoLeitura"
+                );
+
+            menuButton.addEventListener(
+                "click",
+                () => {
+                    const aberto =
+                        menu.classList.toggle("open");
+
+                    menuButton.setAttribute(
+                        "aria-expanded",
+                        String(aberto)
+                    );
+
+                    document.body.classList.toggle(
+                        "menu-open",
+                        aberto
+                    );
+                }
+            );
+
+            menu.addEventListener(
+                "click",
+                (evento) => {
+                    if (
+                        !evento.target.matches("a")
+                    ) {
+                        return;
+                    }
+
+                    menu.classList.remove("open");
+
+                    menuButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                    document.body.classList.remove(
+                        "menu-open"
+                    );
+                }
+            );
+
+            window.addEventListener(
+                "scroll",
+                () => {
+                    voltarTopo.classList.toggle(
+                        "visible",
+                        window.scrollY > 500
+                    );
+
+                    const altura =
+                        document.documentElement
+                            .scrollHeight -
+                        window.innerHeight;
+
+                    const percentual =
+                        altura > 0
+                            ? (
+                                window.scrollY /
+                                altura
+                            ) * 100
+                            : 0;
+
+                    progresso.style.width =
+                        `${Math.min(
+                            100,
+                            Math.max(
+                                0,
+                                percentual
+                            )
+                        )}%`;
+                }
+            );
+
+            voltarTopo.addEventListener(
+                "click",
+                () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                }
+            );
+        }
+
+        configurarInterface();
+        carregarCategorias();
         carregarNoticia();
     </script>
 </body>
