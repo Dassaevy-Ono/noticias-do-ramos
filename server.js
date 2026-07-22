@@ -22,6 +22,32 @@ function gerarSlug(texto = "") {
         .replace(/-+/g, "-");
 }
 
+function escaparHtml(texto = "") {
+    return String(texto)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function removerHtml(html = "") {
+    return String(html)
+        .replace(/<[^>]*>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function criarDescricao(texto = "", limite = 160) {
+    const textoLimpo = removerHtml(texto);
+
+    if (textoLimpo.length <= limite) {
+        return textoLimpo;
+    }
+
+    return `${textoLimpo.slice(0, limite).trim()}...`;
+}
+
 function validarConfiguracao() {
     const obrigatorias = [
         "DB_HOST",
@@ -558,13 +584,115 @@ app.delete(
     }
 );
 
-app.get("/noticia/:id", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "noticia.html"));
-});
+async function renderizarPaginaNoticia(req, res) {
+    try {
+        const id = req.params.id;
 
-app.get("/noticia/:id/:slug", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "noticia.html"));
-});
+        const [noticias] = await db.query(
+            "SELECT * FROM noticias WHERE id = ?",
+            [id]
+        );
+
+        if (noticias.length === 0) {
+            return res.status(404).send(
+                "Notícia não encontrada."
+            );
+        }
+
+        const noticia = noticias[0];
+
+        const slugCorreto =
+            noticia.slug || gerarSlug(noticia.titulo);
+
+        if (
+            req.params.slug &&
+            req.params.slug !== slugCorreto
+        ) {
+            return res.redirect(
+                301,
+                `/noticia/${noticia.id}/${slugCorreto}`
+            );
+        }
+
+        const caminhoHtml = path.join(
+            __dirname,
+            "views",
+            "noticia.html"
+        );
+
+        let html = await require("fs").promises.readFile(
+            caminhoHtml,
+            "utf8"
+        );
+
+        const siteUrl = (
+            process.env.SITE_URL ||
+            `${req.protocol}://${req.get("host")}`
+        ).replace(/\/$/, "");
+
+        const urlNoticia =
+            `${siteUrl}/noticia/${noticia.id}/${slugCorreto}`;
+
+        const titulo =
+            escaparHtml(noticia.titulo);
+
+        const descricao =
+            escaparHtml(
+                criarDescricao(noticia.texto)
+            );
+
+        const imagem =
+            escaparHtml(
+                noticia.imagem ||
+                `${siteUrl}/imagem-padrao.jpg`
+            );
+
+        html = html
+            .replaceAll(
+                "{{META_TITLE}}",
+                `${titulo} | Notícias do Ramos`
+            )
+            .replaceAll(
+                "{{META_DESCRIPTION}}",
+                descricao
+            )
+            .replaceAll(
+                "{{META_IMAGE}}",
+                imagem
+            )
+            .replaceAll(
+                "{{META_URL}}",
+                escaparHtml(urlNoticia)
+            )
+            .replaceAll(
+                "{{META_CATEGORY}}",
+                escaparHtml(
+                    noticia.categoria || "Geral"
+                )
+            );
+
+        return res.send(html);
+    } catch (erro) {
+        console.error(
+            "ERRO AO RENDERIZAR NOTÍCIA:",
+            erro.message
+        );
+
+        return res.status(500).send(
+            "Erro ao carregar notícia."
+        );
+    }
+}
+
+app.get(
+    "/noticia/:id",
+    renderizarPaginaNoticia
+);
+
+app.get(
+    "/noticia/:id/:slug",
+    renderizarPaginaNoticia
+);
 
 app.get("/api/categorias", async (req, res) => {
     try {
