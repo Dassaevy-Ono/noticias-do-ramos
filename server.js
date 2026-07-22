@@ -641,11 +641,24 @@ async function renderizarPaginaNoticia(req, res) {
                 criarDescricao(noticia.texto)
             );
 
+        let imagemOriginal =
+            noticia.imagem ||
+            `${siteUrl}/imagem-padrao.jpg`;
+
+        if (
+            imagemOriginal.includes(
+                "res.cloudinary.com"
+            )
+        ) {
+            imagemOriginal =
+                imagemOriginal.replace(
+                    "/image/upload/",
+                    "/image/upload/c_fill,w_1200,h_630,q_auto,f_auto/"
+                );
+        }
+
         const imagem =
-            escaparHtml(
-                noticia.imagem ||
-                `${siteUrl}/imagem-padrao.jpg`
-            );
+            escaparHtml(imagemOriginal);
 
         html = html
             .replaceAll(
