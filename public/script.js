@@ -274,6 +274,66 @@ function mostrarErro() {
     el.categorias.innerHTML = "";
 }
 
+
+function configurarPesquisaMobile() {
+    const caixaPesquisa = document.querySelector(".search-box");
+    const botaoPesquisa = document.getElementById("botaoBusca");
+
+    if (!caixaPesquisa || !el.busca || !botaoPesquisa) return;
+
+    const estaNoMobile = () => window.innerWidth <= 760;
+
+    function abrirPesquisa() {
+        caixaPesquisa.classList.add("mobile-open");
+        requestAnimationFrame(() => el.busca.focus());
+    }
+
+    function fecharPesquisa() {
+        caixaPesquisa.classList.remove("mobile-open");
+    }
+
+    caixaPesquisa.addEventListener("submit", evento => {
+        evento.preventDefault();
+
+        if (estaNoMobile() && !caixaPesquisa.classList.contains("mobile-open")) {
+            abrirPesquisa();
+            return;
+        }
+
+        pesquisarNoticias();
+    });
+
+    botaoPesquisa.addEventListener("click", evento => {
+        if (!estaNoMobile()) return;
+
+        if (!caixaPesquisa.classList.contains("mobile-open")) {
+            evento.preventDefault();
+            abrirPesquisa();
+        }
+    });
+
+    document.addEventListener("click", evento => {
+        if (
+            estaNoMobile() &&
+            caixaPesquisa.classList.contains("mobile-open") &&
+            !caixaPesquisa.contains(evento.target)
+        ) {
+            fecharPesquisa();
+        }
+    });
+
+    document.addEventListener("keydown", evento => {
+        if (evento.key === "Escape") {
+            fecharPesquisa();
+            el.busca.blur();
+        }
+    });
+
+    window.addEventListener("resize", () => {
+        if (!estaNoMobile()) fecharPesquisa();
+    });
+}
+
 function configurarInterface() {
     const agora = new Date();
     document.getElementById("anoAtual").textContent = agora.getFullYear();
@@ -304,4 +364,5 @@ function configurarInterface() {
 }
 
 configurarInterface();
+configurarPesquisaMobile();
 carregarHome();

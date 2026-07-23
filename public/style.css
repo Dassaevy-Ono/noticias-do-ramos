@@ -554,3 +554,44 @@ button,input{font:inherit}
         line-height:1.75;
     }
 }
+
+/* =========================================================
+   PESQUISA MOBILE — CORREÇÃO ISOLADA
+   Só atua quando a classe .mobile-open é adicionada via JS.
+   ========================================================= */
+@media (max-width:760px){
+    .search-box.mobile-open{
+        position:fixed;
+        top:112px;
+        left:12px;
+        right:12px;
+        z-index:1200;
+        width:auto;
+        height:48px;
+        display:flex;
+        align-items:center;
+        border:1px solid var(--line);
+        border-radius:999px;
+        background:#fff;
+        overflow:hidden;
+        box-shadow:0 10px 30px rgba(0,0,0,.18);
+    }
+
+    .search-box.mobile-open input{
+        display:block;
+        flex:1;
+        width:auto;
+        min-width:0;
+        height:100%;
+        padding:0 10px 0 16px;
+        border:0;
+        outline:0;
+        background:transparent;
+    }
+
+    .search-box.mobile-open button{
+        width:48px;
+        height:48px;
+        flex:0 0 48px;
+    }
+}
